@@ -19,29 +19,21 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
 
 class RenderViewHelper extends AbstractViewHelper
 {
-    use CompileWithRenderStatic;
-
     protected $escapeOutput = false;
 
     /**
      * @param array<mixed> $arguments
      * @throws \JsonException
      */
-    public static function renderStatic(
-        array $arguments,
-        \Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ): string {
-        $context = (new ContextStack($renderingContext->getViewHelperVariableContainer()))->current();
+    public function render(): string
+    {
+        $context = (new ContextStack($this->renderingContext->getViewHelperVariableContainer()))->current();
         if (!$context instanceof TopwireContext) {
             throw new InvalidTopwireContext('Can only render as child of a Topwire context view helper', 1671623956);
         }
-        assert($renderingContext instanceof RenderingContext);
-        $request = (new ServerRequestFromRenderingContext($renderingContext))->getRequest()->withAttribute('topwire', $context);
-        $actionRequest = self::addActionNameToRequest(
-            $request,
-            $context,
-        );
+        assert($this->renderingContext instanceof RenderingContext);
+        $request = (new ServerRequestFromRenderingContext($this->renderingContext))->getRequest()->withAttribute('topwire', $context);
+        $actionRequest = $this->addActionNameToRequest($request, $context);
         $contentData = [];
         if ($request !== $actionRequest) {
             $contentData = [
@@ -67,7 +59,7 @@ class RenderViewHelper extends AbstractViewHelper
             );
     }
 
-    private static function addActionNameToRequest(ServerRequestInterface $request, TopwireContext $context): ServerRequestInterface
+    private function addActionNameToRequest(ServerRequestInterface $request, TopwireContext $context): ServerRequestInterface
     {
         $plugin = $context->getAttribute('plugin');
         if (!$plugin instanceof Plugin

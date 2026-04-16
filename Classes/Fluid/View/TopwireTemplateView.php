@@ -25,7 +25,7 @@ class TopwireTemplateView extends AbstractTemplateView
             $sectionName = str_replace(' ', '', ucwords(str_replace('-', ' ', strtolower($frame->baseId))));
             try {
                 return $this->renderSection($sectionName, (array)$renderingContext->getVariableProvider()->getAll());
-            } catch (InvalidSectionException $e) {
+            } catch (InvalidSectionException) {
                 // Section for frame is not found, gracefully render complete template
                 return parent::render($actionName);
             }

@@ -93,7 +93,7 @@ class ContentElementWrapListener
                 if ($potentialWrapConfig === $frameWrapConfig) {
                     return rtrim(str_replace('./', '.', $path), '.');
                 }
-            } catch (MissingArrayPathException $e) {
+            } catch (MissingArrayPathException) {
                 $potentialWrapConfig = [];
             }
         }

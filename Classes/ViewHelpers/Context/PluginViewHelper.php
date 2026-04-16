@@ -12,8 +12,6 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
 
 class PluginViewHelper extends AbstractViewHelper
 {
-    use CompileWithRenderStatic;
-
     protected $escapeOutput = false;
     protected $escapeChildren = true;
 
@@ -29,35 +27,27 @@ class PluginViewHelper extends AbstractViewHelper
     /**
      * @param array<mixed> $arguments
      */
-    public static function renderStatic(
-        array $arguments,
-        \Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ): string {
-        $requestFromRenderingContext = new ServerRequestFromRenderingContext($renderingContext);
+    public function render(): string
+    {
+        $requestFromRenderingContext = new ServerRequestFromRenderingContext($this->renderingContext);
         $request = $requestFromRenderingContext->getRequest();
-
         $contextFactory = new TopwireContextFactory(
             $request
         );
-        $context = $contextFactory->forArguments($arguments);
-        if (isset($arguments['section'])) {
-            $context = $context->withAttribute('section', new Section($arguments['section']));
+        $context = $contextFactory->forArguments($this->arguments);
+        if (isset($this->arguments['section'])) {
+            $context = $context->withAttribute('section', new Section($this->arguments['section']));
         }
-
-        $contextStack = new ContextStack($renderingContext->getViewHelperVariableContainer());
+        $contextStack = new ContextStack($this->renderingContext->getViewHelperVariableContainer());
         $contextStack->push($context);
-
         $contentObject = $request->getAttribute('currentContentObject');
-
         $topwireRequest = $request->withAttribute('topwire', $context);
         $contentObject?->setRequest($topwireRequest);
         $requestFromRenderingContext->setRequest($topwireRequest);
-        $renderedChildren = $renderChildrenClosure();
+        $renderedChildren = $this->renderChildren();
         $requestFromRenderingContext->setRequest($request);
         $contentObject?->setRequest($request);
         $contextStack->pop();
-
         return (string)$renderedChildren;
     }
 }
